@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyName>HazmatsFB</AssemblyName>
+    <RootNamespace>HazmatsFB</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <BoneLibPath Condition="'$(BoneLibPath)' == ''">$(MSBuildThisFileDirectory)References/BoneLib.dll</BoneLibPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="BoneLib">
+      <HintPath>$(BoneLibPath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <PackageReference Include="LavaGang.MelonLoader" Version="0.6.6" IncludeAssets="compile" />
+    <PackageReference Include="UnityEngine.Modules" Version="2021.3.16" IncludeAssets="compile" />
+  </ItemGroup>
+</Project>
