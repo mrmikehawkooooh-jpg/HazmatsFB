@@ -1,0 +1,44 @@
+name: Build Hazmats FB
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 6
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 6.0.x
+
+      - name: Download BoneLib compile reference
+        shell: pwsh
+        run: |
+          $archive = Join-Path $env:RUNNER_TEMP 'BoneLib.zip'
+          $extract = Join-Path $env:RUNNER_TEMP 'BoneLib'
+          Invoke-WebRequest -Uri 'https://thunderstore.io/package/download/bonelib/BoneLib/3.2.2/' -OutFile $archive
+          Expand-Archive -Path $archive -DestinationPath $extract -Force
+
+          $assembly = Get-ChildItem -Path $extract -Filter 'BoneLib.dll' -Recurse | Select-Object -First 1
+          if (-not $assembly) {
+            throw 'BoneLib.dll was not present in the pinned BoneLib Thunderstore package.'
+          }
+
+          New-Item -ItemType Directory -Path 'References' -Force | Out-Null
+          Copy-Item $assembly.FullName 'References/BoneLib.dll' -Force
+
+      - name: Build mod
+        run: dotnet build HazmatsFB.csproj --configuration Release
+
+      - name: Upload Quest mod DLL
+        uses: actions/upload-artifact@v4
+        with:
+          name: HazmatsFB-Quest
+          path: bin/Release/net6.0/HazmatsFB.dll
+          if-no-files-found: error
